@@ -5,32 +5,6 @@ from typing import Iterator, Self
 from .quantity import Time
 
 
-# class TimePoint:
-#     def __init__(self, time: Time):
-#         self.time = time
-
-#     def __str__(self) -> str:
-#         return f"{self.time}"
-    
-#     def __hash__(self):
-#         return hash((self.time,))
-    
-#     def __eq__(self, other: Self):
-#         return self.time == other.time
-    
-
-# class MainTimePoint(TimePoint):
-#     def __init__(self, time, name=None):
-#         TimePoint.__init__(self, time=time)
-#         self.name = name
-
-#     def __str__(self) -> str:
-#         if self.name is None:
-#             return f"{self.time}"
-#         else:
-#             return f"{self.time} ({self.name})"
-
-
 class TimeSegment:
     def __init__(self, start: Time, stop: Time):
         self.start = start
@@ -80,16 +54,16 @@ class Timeline:
     def named_profile(self) -> Self:
         return Timeline([time for time in self.times if time in self.named_times])
     
-    def segment_for(self, time):
+    def segment_for(self, time: Time) -> TimeSegment:
         for segment in self.segments:
             if time in segment:
                 return segment
     
-    def resample(self, sample_rate: Time):
+    def resample(self, sample_period: Time) -> Self:
         times = [self[0]]
-        n = math.ceil(self[0]/sample_rate) + 1
+        n = math.ceil(self[0]/sample_period) + 1
         for existing_time in self[1:]:
-            while (time := n*sample_rate) < existing_time:
+            while (time := n*sample_period) < existing_time:
                 times.append(time)
                 n += 1
             times.append(existing_time)

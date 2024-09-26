@@ -1,5 +1,7 @@
 
 from functools import cached_property
+
+from .dive import Dive
 from .depth_profile import DepthProfile
 from .gas_profile import GasSupplyProfile, GasSupplySet, GasUsage, GasUsageProfile
 from .quantity import T0, VFR, Depth, Time
@@ -23,11 +25,16 @@ class DivePlan:
         return len(self.rows)
     
     def __iter__(self):
-        return iter(self.rows)
-
-    @staticmethod
-    def from_table(start_gas_supply_set, table):
-        return DivePlan(start_gas_supply_set, [DivePlanRow(*row) for row in table])
+        return iter(self.rows) 
+    
+    @cached_property
+    def dive(self) -> Dive:
+        return Dive(
+            timeline=self.timeline,
+            depth_profile=self.depth_profile,
+            gas_usage_profile=self.gas_usage_profile,
+            gas_supply_profile=self.gas_supply_profile,
+        )
     
     @cached_property
     def timeline(self):
@@ -48,4 +55,8 @@ class DivePlan:
     @cached_property
     def gas_supply_profile(self):
         return GasSupplyProfile.create(start_gas_supply_set=self.start_gas_supply_set, depth_profile=self.depth_profile, gas_usage_profile=self.gas_usage_profile)
+
+    @staticmethod
+    def from_table(start_gas_supply_set, table):
+        return DivePlan(start_gas_supply_set, [DivePlanRow(*row) for row in table])
     
